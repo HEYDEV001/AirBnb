@@ -32,10 +32,10 @@ public class Room {
     private BigDecimal basePrice;
 
     @Column(columnDefinition = "TEXT[]")
-    private String photos;
+    private String[] photos;
 
     @Column(columnDefinition = "TEXT[]")
-    private String amenities;
+    private String[] amenities;
 
     @Column(nullable = false)
     private Integer totalCount;

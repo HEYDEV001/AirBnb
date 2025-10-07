@@ -10,6 +10,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,11 +29,10 @@ public class Hotel {
     private String city;
 
     @Column(columnDefinition = "TEXT[]")
-    private String photos;
-
+    private String[] photos;
 
     @Column(columnDefinition = "TEXT[]")
-    private String amenities;
+    private String[] amenities;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -45,4 +45,10 @@ public class Hotel {
 
     @Column(nullable = false)
     private Boolean isActive;
+
+    @ManyToOne
+    private User owner;
+
+    @OneToMany(mappedBy = "hotel")
+    private List<Room> rooms;
 }
