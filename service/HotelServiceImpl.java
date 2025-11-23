@@ -2,12 +2,15 @@ package com.Backend.Projects.AirBnb.service;
 
 import com.Backend.Projects.AirBnb.dto.HotelDto;
 import com.Backend.Projects.AirBnb.entities.Hotel;
+import com.Backend.Projects.AirBnb.entities.Room;
 import com.Backend.Projects.AirBnb.exceptions.ResourceNotFoundException;
 import com.Backend.Projects.AirBnb.repository.HotelRepository;
+import com.Backend.Projects.AirBnb.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,8 @@ public class HotelServiceImpl implements HotelService {
 
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
+    private final InventoryService inventoryService;
+    private final RoomRepository roomRepository;
 
     @Override
     public HotelDto createHotel(HotelDto hotelDto) {
@@ -52,21 +57,30 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
+    @Transactional
     public void deleteHotelById(Long id) {
         Hotel hotel= hotelRepository
                 .findById(id.intValue())
                 .orElseThrow( () -> new ResourceNotFoundException("hotel not found with the id:"+id));
+        for (Room room : hotel.getRooms()) {
+            inventoryService.deleteAllInventory(room);
+            roomRepository.deleteById(room.getId().intValue() );
+        }
         hotelRepository.deleteById(id.intValue());
-        //TODO: delete the future inventories for this hotel
+        log.info("Hotel deleted successfully  with ID {}", id);
+
     }
 
     @Override
     public void activateHotel(Long id) {
         Hotel hotel= hotelRepository
-                .findById(Math.toIntExact(id))
+                .findById(id.intValue())
                 .orElseThrow( () -> new ResourceNotFoundException("hotel not found with the id:"+id));
         hotel.setIsActive(true);
-        // TODO: create the inventory for this hotel
+        hotelRepository.save(hotel);
+        for(Room room: hotel.getRooms()){
+            inventoryService.InitialiseInventory(room );
+        }
     }
 
 

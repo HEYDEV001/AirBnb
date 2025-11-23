@@ -1,16 +1,17 @@
 package com.Backend.Projects.AirBnb.service;
 
-import com.Backend.Projects.AirBnb.dto.HotelDto;
 import com.Backend.Projects.AirBnb.dto.RoomDto;
 import com.Backend.Projects.AirBnb.entities.Hotel;
 import com.Backend.Projects.AirBnb.entities.Room;
 import com.Backend.Projects.AirBnb.exceptions.ResourceNotFoundException;
 import com.Backend.Projects.AirBnb.repository.HotelRepository;
+import com.Backend.Projects.AirBnb.repository.InventoryRepository;
 import com.Backend.Projects.AirBnb.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,9 +25,12 @@ public class RoomServiceImpl implements RoomService {
     private final ModelMapper modelMapper;
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
+    private final InventoryService inventoryService;
+    private final InventoryRepository inventoryRepository;
 
 
     @Override
+    @Transactional
     public RoomDto createRoom(Long hotelId,RoomDto roomDto) {
         log.info("creating a room in hotel with id  {}",hotelId);
         Hotel hotel= hotelRepository
@@ -35,7 +39,9 @@ public class RoomServiceImpl implements RoomService {
         Room room = modelMapper.map(roomDto, Room.class);
         room.setHotel(hotel);
         room = roomRepository.save(room);
-        // TODO: create inventory as soon as the room is created and the hotel is active
+        if(hotel.getIsActive()){
+            inventoryService.InitialiseInventory(room);
+        }
         log.info("Room created successfully  with ID {}", room.getId());
         return modelMapper.map(room, RoomDto.class);
     }
@@ -72,13 +78,16 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public void deleteRoomById(Long roomId) {
         Room room = roomRepository
                 .findById(roomId.intValue())
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with id " + roomId));
 
+        inventoryService.deleteAllInventory(room);
+        log.info("Inventory for Room  with ID {} is successfully deleted", roomId);
         roomRepository.deleteById(roomId.intValue());
         log.info("Room deleted successfully  with ID {}", roomId);
-        // TODO: delete the future inventory for this room
+
     }
 }
