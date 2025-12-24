@@ -1,6 +1,8 @@
 package com.Backend.Projects.AirBnb.controller;
 
 import com.Backend.Projects.AirBnb.dto.HotelDto;
+import com.Backend.Projects.AirBnb.entities.Hotel;
+import com.Backend.Projects.AirBnb.repository.HotelRepository;
 import com.Backend.Projects.AirBnb.service.HotelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,12 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/admin/hotels")
 @RequiredArgsConstructor
 public class HotelController {
     private final HotelService hotelService;
+    private final HotelRepository hotelRepository;
 
     @PostMapping
     public ResponseEntity<HotelDto> createHotel(@RequestBody HotelDto hotelDto) {
@@ -21,7 +26,12 @@ public class HotelController {
         HotelDto hotelDto1 = hotelService.createHotel(hotelDto);
         return new ResponseEntity<>(hotelDto1, HttpStatus.CREATED);
     }
-
+    @GetMapping
+    public ResponseEntity<List<HotelDto>> getAllHotels() {
+        log.info("attempting to get all Hotels");
+        List<HotelDto> hotels = hotelService.getAllHotels();
+        return new ResponseEntity<>(hotels, HttpStatus.OK);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<HotelDto> getHotelById(@PathVariable Long id) {
         log.info("attempting to get Hotel");
@@ -44,7 +54,7 @@ public class HotelController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/activate")
     public ResponseEntity<Void> activateHotel(@PathVariable Long id) {
         log.info("attempting to activate Hotel");
         hotelService.activateHotel(id);

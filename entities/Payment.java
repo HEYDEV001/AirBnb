@@ -39,4 +39,7 @@ public class Payment {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    private Booking booking;
+
 }

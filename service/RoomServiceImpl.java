@@ -34,7 +34,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomDto createRoom(Long hotelId,RoomDto roomDto) {
         log.info("creating a room in hotel with id  {}",hotelId);
         Hotel hotel= hotelRepository
-                .findById(hotelId.intValue())
+                .findById(hotelId)
                 .orElseThrow( () -> new ResourceNotFoundException("hotel not found with the id:"+hotelId));
         Room room = modelMapper.map(roomDto, Room.class);
         room.setHotel(hotel);
@@ -52,11 +52,11 @@ public class RoomServiceImpl implements RoomService {
 
         // Fetch the hotel
         Hotel hotel = hotelRepository
-                .findById(hotelId.intValue())
+                .findById(hotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with id: " + hotelId));
 
         // Fetch the room that belongs to this hotel
-        Room room = roomRepository.findById(roomId.intValue())
+        Room room = roomRepository.findById(roomId)
                 .filter(r -> r.getHotel().getId().equals(hotel.getId()))
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found with id " + roomId + " for hotel id " + hotelId));
@@ -68,7 +68,7 @@ public class RoomServiceImpl implements RoomService {
     public List<RoomDto> getAllRooms(Long hotelId) {
         log.info("getting all the rooms in hotel with id  {}",hotelId);
         Hotel hotel= hotelRepository
-                .findById(hotelId.intValue())
+                .findById(hotelId)
                 .orElseThrow( () -> new ResourceNotFoundException("hotel not found with the id:"+hotelId));
 
        return hotel.getRooms()
@@ -81,12 +81,12 @@ public class RoomServiceImpl implements RoomService {
     @Transactional
     public void deleteRoomById(Long roomId) {
         Room room = roomRepository
-                .findById(roomId.intValue())
+                .findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with id " + roomId));
 
         inventoryService.deleteAllInventory(room);
         log.info("Inventory for Room  with ID {} is successfully deleted", roomId);
-        roomRepository.deleteById(roomId.intValue());
+        roomRepository.deleteById(roomId);
         log.info("Room deleted successfully  with ID {}", roomId);
 
     }
