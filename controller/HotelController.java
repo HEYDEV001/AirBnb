@@ -26,19 +26,18 @@ public class HotelController {
         HotelDto hotelDto1 = hotelService.createHotel(hotelDto);
         return new ResponseEntity<>(hotelDto1, HttpStatus.CREATED);
     }
-    @GetMapping
-    public ResponseEntity<List<HotelDto>> getAllHotels() {
-        log.info("attempting to get all Hotels");
-        List<HotelDto> hotels = hotelService.getAllHotels();
-        return new ResponseEntity<>(hotels, HttpStatus.OK);
-    }
+//    @GetMapping
+//    public ResponseEntity<List<HotelDto>> getAllHotels() {
+//        log.info("attempting to get all Hotels");
+//        List<HotelDto> hotels = hotelService.getAllHotels();
+//        return new ResponseEntity<>(hotels, HttpStatus.OK);
+//    }
     @GetMapping("/{id}")
     public ResponseEntity<HotelDto> getHotelById(@PathVariable Long id) {
         log.info("attempting to get Hotel");
         HotelDto hotelDto = hotelService.getHotelById(id);
         return new ResponseEntity<>(hotelDto, HttpStatus.FOUND);
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<HotelDto> updateHotelById(@PathVariable Long id, @RequestBody HotelDto hotelDto) {
